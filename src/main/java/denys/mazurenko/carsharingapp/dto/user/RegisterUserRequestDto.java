@@ -31,4 +31,7 @@ public class RegisterUserRequestDto {
             message = "password must contain between 6 and 20 characters")
     private String password;
     private String repeatPassword;
+
+    @NotBlank
+    private String telegramChatId;
 }

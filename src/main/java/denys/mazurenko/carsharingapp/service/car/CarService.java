@@ -2,10 +2,16 @@ package denys.mazurenko.carsharingapp.service.car;
 
 import java.util.List;
 import denys.mazurenko.carsharingapp.dto.car.CarDto;
-import denys.mazurenko.carsharingapp.model.Car;
+import denys.mazurenko.carsharingapp.dto.car.UpdateCarRequestDto;
 
 public interface CarService {
-    CarDto save(Car dto);
+    CarDto save(CarDto dto);
 
     List<CarDto> getAllCars();
+
+    CarDto getCarById(Long id);
+
+    CarDto updateCar(Long id, UpdateCarRequestDto dto);
+
+    void deleteCarById(Long id);
 }
