@@ -6,4 +6,5 @@ import denys.mazurenko.carsharingapp.exception.RegistrationException;
 
 public interface UserService {
     RegisterUserResponseDto register(RegisterUserRequestDto registerUserRequestDto) throws RegistrationException;
+
 }

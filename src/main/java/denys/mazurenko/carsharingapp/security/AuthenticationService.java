@@ -1,5 +1,6 @@
 package denys.mazurenko.carsharingapp.security;
 
+import denys.mazurenko.carsharingapp.dto.user.LoginUserRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.LoginUserResponseDto;
 import denys.mazurenko.carsharingapp.dto.user.RegisterUserRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +15,9 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public LoginUserResponseDto authenticate(RegisterUserRequestDto userDto) {
+    public LoginUserResponseDto authenticate(LoginUserRequestDto userDto) {
         final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())
+                new UsernamePasswordAuthenticationToken(userDto.email(), userDto.password())
         );
         String generateToken = jwtUtil.generateToken(authentication.getName());
         return new LoginUserResponseDto(generateToken);

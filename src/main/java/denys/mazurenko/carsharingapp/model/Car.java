@@ -1,5 +1,6 @@
 package denys.mazurenko.carsharingapp.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,12 +20,20 @@ public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String brand;
+
+    @Column(nullable = false)
     private String model;
+
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @Column(nullable = false)
     private int inventory;
+
+    @Column(nullable = false)
     private BigDecimal dailyFee;
 
     public enum Type {
