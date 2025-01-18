@@ -33,7 +33,10 @@ public class AuthenticationService {
 
     public LoginUserResponseDto authenticate(LoginUserRequestDto loginUserRequestDto) {
         final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginUserRequestDto.email(), loginUserRequestDto.password())
+                new UsernamePasswordAuthenticationToken(
+                        loginUserRequestDto.email(),
+                        loginUserRequestDto.password()
+                )
         );
         String generateToken = jwtUtil.generateToken(authentication.getName());
         return new LoginUserResponseDto(generateToken);

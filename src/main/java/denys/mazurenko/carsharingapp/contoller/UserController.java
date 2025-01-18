@@ -1,9 +1,9 @@
 package denys.mazurenko.carsharingapp.contoller;
 
+import denys.mazurenko.carsharingapp.dto.user.UpdateChatIdRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateProfileInfoRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateRolesRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UserResponseDto;
-import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +23,7 @@ public class UserController {
 
     @GetMapping("/me")
     public UserResponseDto getProfileInfo(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return userService.getProfileInfo(user);
+        return userService.getProfileInfo(authentication);
     }
 
     @PutMapping("/{id}/role")
@@ -39,7 +38,16 @@ public class UserController {
     public UserResponseDto updateProfileInfo(Authentication authentication,
                                              @RequestBody
                                              UpdateProfileInfoRequestDto requestDto) {
-        User user = (User) authentication.getPrincipal();
-        return userService.updateProfileInfo(user, requestDto);
+        return userService.updateProfileInfo(authentication, requestDto);
+    }
+
+    @PutMapping("{id}/chatId")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public UserResponseDto updateChatId(
+            @PathVariable
+            Long id,
+            @RequestBody
+            UpdateChatIdRequestDto requestDto) {
+        return userService.updateUserTelegramChatId(id, requestDto);
     }
 }

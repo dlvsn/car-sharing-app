@@ -13,3 +13,7 @@ databaseChangeLog:
       file: db/changelog/changes/06-insert-manager-to-users-table.yaml
   - include:
       file: db/changelog/changes/07-insert-data-to-users-roles-table.yaml
+  - include:
+      file: db/changelog/changes/08-create-rental-table.yaml
+  - include:
+      file: db/changelog/changes/09-create-payment-table.yaml

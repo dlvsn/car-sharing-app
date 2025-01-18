@@ -4,6 +4,7 @@ import denys.mazurenko.carsharingapp.dto.car.CarDto;
 import denys.mazurenko.carsharingapp.dto.car.UpdateCarRequestDto;
 import denys.mazurenko.carsharingapp.service.car.CarService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
