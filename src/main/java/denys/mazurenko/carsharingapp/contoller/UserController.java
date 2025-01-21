@@ -4,6 +4,8 @@ import denys.mazurenko.carsharingapp.dto.user.UpdateProfileInfoRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateRolesRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UserResponseDto;
 import denys.mazurenko.carsharingapp.service.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "User controller", description = "Endpoints for managing users")
 @RequiredArgsConstructor
 @Validated
 @RestController
@@ -24,11 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
+    @Operation(summary = """
+            Displays profile information for the currently authenticated user.
+            """)
     @GetMapping("/me")
     public UserResponseDto getProfileInfo(Authentication authentication) {
         return userService.getProfileInfo(authentication);
     }
 
+    @Operation(summary = """
+            Allows updating user roles. 
+            Accessible only to users with the 'ROLE_MANAGER'.
+            """)
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     public UserResponseDto updateRoleByUserId(
@@ -41,6 +51,9 @@ public class UserController {
         return userService.updateRole(id, requestDto);
     }
 
+    @Operation(summary = """
+            Updates the profile information of the currently authenticated user.
+            """)
     @PutMapping("/me")
     public UserResponseDto updateProfileInfo(Authentication authentication,
                                              @RequestBody
