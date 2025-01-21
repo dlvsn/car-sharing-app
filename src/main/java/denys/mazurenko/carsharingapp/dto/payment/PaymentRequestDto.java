@@ -1,6 +1,8 @@
 package denys.mazurenko.carsharingapp.dto.payment;
 
-import denys.mazurenko.carsharingapp.model.Payment;
+import jakarta.validation.constraints.Positive;
 
-public record PaymentRequestDto(Long rentalId, Payment.Type type) {
+public record PaymentRequestDto(
+        @Positive(message = "Rental id can't be less than 0")
+        Long rentalId) {
 }

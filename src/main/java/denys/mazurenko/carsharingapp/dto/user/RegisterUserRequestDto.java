@@ -17,13 +17,13 @@ import org.hibernate.validator.constraints.Length;
 })
 public class RegisterUserRequestDto {
     @Email
-    @NotBlank
+    @NotBlank(message = "Please, enter your email")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Please, enter your first name")
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = "Please, enter your last name")
     private String lastName;
 
     @NotBlank
@@ -31,7 +31,4 @@ public class RegisterUserRequestDto {
             message = "password must contain between 6 and 20 characters")
     private String password;
     private String repeatPassword;
-
-    @NotBlank
-    private String telegramChatId;
 }

@@ -12,5 +12,6 @@ public class PaymentResponseDto {
     private String sessionId;
     private String sessionUrl;
     private BigDecimal amount;
+    private Payment.Type paymentType;
     private Payment.Status status;
 }

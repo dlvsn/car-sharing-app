@@ -38,9 +38,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(unique = true)
-    private String telegramChatId;
-
     @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

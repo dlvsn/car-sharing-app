@@ -5,17 +5,19 @@ import denys.mazurenko.carsharingapp.dto.rental.RentalResponseDto;
 import denys.mazurenko.carsharingapp.exception.ActiveRentalException;
 import denys.mazurenko.carsharingapp.exception.CarOutOfStockException;
 import denys.mazurenko.carsharingapp.exception.EntityNotFoundException;
-import denys.mazurenko.carsharingapp.exception.ErrorMessages;
 import denys.mazurenko.carsharingapp.mapper.RentalMapper;
 import denys.mazurenko.carsharingapp.model.Car;
 import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.CarRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
-import denys.mazurenko.carsharingapp.service.bot.NotificationService;
+import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
+import denys.mazurenko.carsharingapp.service.notification.NotificationService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class RentalServiceImpl implements RentalService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int IS_OUT_OF_STOCK = 0;
+    private final CustomUserDetailsService userDetailsService;
     private final NotificationService notificationService;
     private final CarRepository carRepository;
     private final RentalMapper rentalMapper;
@@ -36,8 +39,9 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalResponseDto rentCar(
             Authentication authentication,
-            RentalRequestDto rentalRequestDto) {
-        User user = (User) authentication.getPrincipal();
+            RentalRequestDto rentalRequestDto
+    ) {
+        User user = userDetailsService.getUserFromAuthentication(authentication);
         checkActiveRental(user);
 
         Car car = findCarById(rentalRequestDto.carId());
@@ -46,7 +50,7 @@ public class RentalServiceImpl implements RentalService {
         boolean isInventoryDecreased = false;
         car.setInventory(updateInventory(isInventoryDecreased, car.getInventory()));
 
-        Rental rental = createRental(user, car);
+        Rental rental = createRental(user, car, rentalRequestDto.days());
 
         carRepository.save(car);
         rentalRepository.save(rental);
@@ -55,10 +59,36 @@ public class RentalServiceImpl implements RentalService {
         return rentalMapper.toDto(rental);
     }
 
+    @Override
+    public List<RentalResponseDto> findActiveOrNoActiveRentals(
+            Authentication authentication,
+            boolean isActive
+    ) {
+        User user = userDetailsService.getUserFromAuthentication(authentication);
+        return isActive
+                ? Stream.of(findActiveRentalByUserId(user.getId()))
+                .map(rentalMapper::toDto)
+                .toList()
+                : rentalRepository.findByUserIdAndActualReturnDateIsNotNull(user.getId())
+                .stream()
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public RentalResponseDto findRentalById(
+            Authentication authentication,
+            Long rentalId
+    ) {
+        User user = userDetailsService.getUserFromAuthentication(authentication);
+        Rental rentalById = getRentalById(rentalId, user.getId());
+        return rentalMapper.toDto(rentalById);
+    }
+
     @Transactional
     @Override
     public RentalResponseDto returnCar(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        User user = userDetailsService.getUserFromAuthentication(authentication);
 
         Rental rental = findActiveRentalByUserId(user.getId());
         rental.setActualReturnDate(LocalDateTime.now());
@@ -78,24 +108,23 @@ public class RentalServiceImpl implements RentalService {
     private Car findCarById(Long carId) {
         return carRepository.findById(carId)
                 .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                String.format(
-                                        ErrorMessages.getCANT_FIND_BY_ID(),
-                                        ErrorMessages.getCAR(),
-                                        carId
-                                )
-                        )
+                        new EntityNotFoundException("Can't find car by id " + carId)
+                );
+    }
+
+    private Rental getRentalById(Long rentalId, Long userId) {
+        return rentalRepository
+                .findByIdAndUserId(rentalId, userId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find rental by id " + rentalId)
                 );
     }
 
     private void checkCarInventory(Car car) {
         if (car.getInventory() == IS_OUT_OF_STOCK) {
-            throw new CarOutOfStockException(
-                    String.format(
-                            ErrorMessages.getCAR_IS_OUT_OF_STOCK(),
-                            car.getId()
-                    )
-            );
+            throw new CarOutOfStockException("Car with id "
+                    + car.getId()
+                    + " is out of stock");
         }
     }
 
@@ -103,9 +132,8 @@ public class RentalServiceImpl implements RentalService {
         return rentalRepository
                 .findByUserIdAndActualReturnDateIsNull(userId)
                 .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                ErrorMessages.getNON_EXISTING_RENTAL()
-                        )
+                        new EntityNotFoundException("Can't find active rentals by userId "
+                                + userId)
                 );
     }
 
@@ -115,10 +143,15 @@ public class RentalServiceImpl implements RentalService {
         if (rentalFromDb.isPresent()) {
             Rental rental = rentalFromDb.get();
             throw new ActiveRentalException(
-                    String.format(
-                            ErrorMessages.getEXISTING_RENTAL(),
+                    String.format("""
+                            You have an active rental.
+                            Id: %d
+                            Rental Date: %s
+                            Car: %s %s
+                            You can rent only one car!
+                            """,
                             rental.getId(),
-                            rental.getRentalDate().format(DATE_TIME_FORMATTER),
+                            rental.getRentalDate(),
                             rental.getCar().getBrand(),
                             rental.getCar().getModel()
                     )
@@ -126,10 +159,11 @@ public class RentalServiceImpl implements RentalService {
         }
     }
 
-    private Rental createRental(User user, Car car) {
+    private Rental createRental(User user, Car car, int days) {
         Rental rental = new Rental();
         rental.setUser(user);
         rental.setCar(car);
+        rental.setReturnDate(rental.getRentalDate().plusDays(days));
         return rental;
     }
 

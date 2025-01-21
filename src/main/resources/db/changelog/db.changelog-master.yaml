@@ -17,3 +17,7 @@ databaseChangeLog:
       file: db/changelog/changes/08-create-rental-table.yaml
   - include:
       file: db/changelog/changes/09-create-payment-table.yaml
+  - include:
+      file: db/changelog/changes/10-create-telegram-secure-code-table.yaml
+  - include:
+      file: db/changelog/changes/11-insert-password-to-telegram-secure-table.yaml

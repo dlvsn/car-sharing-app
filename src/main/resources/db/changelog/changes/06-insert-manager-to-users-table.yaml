@@ -10,4 +10,3 @@ databaseChangeLog:
               - column: {name: password, value: '$2a$10$Hpgwm2smsrysZSmrR34QZ.00as4jHGdI1OPBZdGCEuCefB/gkBxZG'}
               - column: {name: first_name, value: 'Admin'}
               - column: {name: last_name, value: 'Admin'}
-              - column: {name: telegram_chat_id, value: '323755547'}

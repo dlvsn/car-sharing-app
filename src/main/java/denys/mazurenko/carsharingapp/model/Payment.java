@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
@@ -31,12 +30,11 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id", nullable = false)
     private Rental rental;
 
-    @URL
     @Column(nullable = false, unique = true)
     private String sessionUrl;
 

@@ -1,7 +1,6 @@
 package denys.mazurenko.carsharingapp.security;
 
 import denys.mazurenko.carsharingapp.exception.EntityNotFoundException;
-import denys.mazurenko.carsharingapp.exception.ErrorMessages;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private User findByEmail(String email) {
         return userRepository.findUserByEmail(email).orElseThrow(() ->
                 new EntityNotFoundException(
-                        String.format(
-                                ErrorMessages.getCANT_FIND_USER_BY_EMAIL(),
-                                email)
+                        "Can't find user by email " + email
                 )
         );
     }

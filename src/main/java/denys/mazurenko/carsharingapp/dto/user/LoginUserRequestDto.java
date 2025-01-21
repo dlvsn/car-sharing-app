@@ -1,4 +1,10 @@
 package denys.mazurenko.carsharingapp.dto.user;
 
-public record LoginUserRequestDto(String email, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginUserRequestDto(
+        @NotBlank(message = "Please, enter your email")
+        String email,
+        @NotBlank(message = "Please, enter your password")
+        String password) {
 }

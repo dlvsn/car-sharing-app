@@ -1,12 +1,24 @@
 package denys.mazurenko.carsharingapp.exception;
 
+import java.util.List;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class CustomGlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<String>> handleValidationExceptions(
+            MethodArgumentNotValidException exception) {
+        List<String> errors = exception.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(DataProcessingException.class)
     public ResponseEntity<String> handleDataProcessingException(
@@ -41,5 +53,17 @@ public class CustomGlobalExceptionHandler {
     public ResponseEntity<String> handlePasswordValidationException(
             PasswordValidationException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ActiveRentalException.class)
+    public ResponseEntity<String> handleActiveRentalException(
+            ActiveRentalException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CarOutOfStockException.class)
+    public ResponseEntity<String> handleCarOutOfStockException(
+            CarOutOfStockException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

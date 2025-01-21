@@ -4,7 +4,6 @@ import com.stripe.model.checkout.Session;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentRequestDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentResponseDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentStatusDto;
-import denys.mazurenko.carsharingapp.exception.DuplicatePaymentException;
 import denys.mazurenko.carsharingapp.exception.EntityNotFoundException;
 import denys.mazurenko.carsharingapp.mapper.PaymentMapper;
 import denys.mazurenko.carsharingapp.model.Payment;
@@ -13,7 +12,8 @@ import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.PaymentRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
 import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
-import denys.mazurenko.carsharingapp.service.bot.NotificationService;
+import denys.mazurenko.carsharingapp.service.notification.NotificationService;
+import denys.mazurenko.carsharingapp.service.payment.strategy.AmountCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentServiceImpl implements PaymentService {
     private static final String IS_PAID = "paid";
+    private final AmountCalculator amountCalculator;
     private final NotificationService notificationService;
     private final StripeService stripeService;
     private final PaymentMapper paymentMapper;
@@ -40,21 +41,21 @@ public class PaymentServiceImpl implements PaymentService {
             PaymentRequestDto paymentRequestDto
     ) {
         User user = userDetailsService.getUserFromAuthentication(authentication);
-
         Rental rental = rentalRepository
                 .findByIdAndUserIdAndActualReturnDateIsNotNull(
                         paymentRequestDto.rentalId(),
                         user.getId()
                 )
-                .orElseThrow(() -> new EntityNotFoundException("Rental not found"));
-
-        Payment payment = paymentMapper.toEntity(paymentRequestDto);
-        Session session = stripeService.createRentalPaymentSession(rental);
-
-        paymentRepository.save(createPayment(payment, rental, session));
-
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find rental by user id "
+                                + user.getId()
+                                + " and rental id " + paymentRequestDto.rentalId()
+                        )
+                );
+        Session session = stripeService
+                .createRentalPaymentSession(rental, amountCalculator.calculate(rental));
+        Payment payment = paymentRepository.save(createPayment(rental, session));
         notificationService.sendNotificationPaymentCreated(rental, user, payment);
-
         return paymentMapper.toDto(payment);
     }
 
@@ -63,8 +64,8 @@ public class PaymentServiceImpl implements PaymentService {
         User user = userDetailsService.getUserFromAuthentication(authentication);
         Payment payment = paymentRepository
                 .findByRentalIdFetchRental(rentalId, user.getId())
-                .orElseThrow(()
-                        -> new EntityNotFoundException("Can't find payment with id " + rentalId));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find payment by id " + rentalId));
         return paymentMapper.toDto(payment);
     }
 
@@ -73,7 +74,6 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getPaymentById(sessionId);
 
         String status = stripeService.checkPaymentStatus(payment.getSessionId());
-        checkIsPaymentPaid(payment);
 
         if (status.equals(IS_PAID)) {
             payment.setStatus(Payment.Status.PAID);
@@ -104,22 +104,16 @@ public class PaymentServiceImpl implements PaymentService {
     private Payment getPaymentById(String sessionId) {
         return paymentRepository
                 .findBySessionId(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found"));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find payment by given session id"));
     }
 
-    private void checkIsPaymentPaid(Payment payment) {
-        if (payment.getStatus() == Payment.Status.PAID) {
-            throw new DuplicatePaymentException("Payment with id "
-                    + payment.getId()
-                    + " has already been processed.");
-        }
-    }
-
-    private Payment createPayment(Payment payment,
-                                  Rental rental,
+    private Payment createPayment(Rental rental,
                                   Session session) {
+        Payment payment = new Payment();
         payment.setRental(rental);
         payment.setStatus(Payment.Status.PENDING);
+        payment.setType(Payment.Type.PAYMENT);
         payment.setSessionId(session.getId());
         payment.setSessionUrl(session.getUrl());
         BigDecimal amount = BigDecimal.valueOf(session.getAmountTotal())

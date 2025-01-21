@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class StripeService {
     private static final String USD = "usd";
     private static final Long DEFAULT_QUANTITY = 1L;
-    private final AmountCalculator amountCalculator;
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
 
@@ -31,7 +30,7 @@ public class StripeService {
         Stripe.apiKey = stripeSecretKey;
     }
 
-    public Session createRentalPaymentSession(Rental rental) {
+    public Session createRentalPaymentSession(Rental rental, BigDecimal amount) {
         SessionCreateParams params = SessionCreateParams
                 .builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -46,9 +45,7 @@ public class StripeService {
                                                 .LineItem
                                                 .PriceData.builder()
                                                 .setCurrency(USD)
-                                                .setUnitAmountDecimal(
-                                                        amountCalculator
-                                                                .calculateAmount(rental)
+                                                .setUnitAmountDecimal(amount
                                                                 .multiply(BigDecimal.valueOf(100)))
                                                 .setProductData(
                                                         SessionCreateParams

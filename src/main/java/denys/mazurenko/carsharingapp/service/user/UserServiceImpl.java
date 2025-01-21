@@ -1,11 +1,9 @@
 package denys.mazurenko.carsharingapp.service.user;
 
-import denys.mazurenko.carsharingapp.dto.user.UpdateChatIdRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateProfileInfoRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateRolesRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UserResponseDto;
 import denys.mazurenko.carsharingapp.exception.EntityNotFoundException;
-import denys.mazurenko.carsharingapp.exception.ErrorMessages;
 import denys.mazurenko.carsharingapp.mapper.UserMapper;
 import denys.mazurenko.carsharingapp.model.Role;
 import denys.mazurenko.carsharingapp.model.User;
@@ -25,17 +23,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    @Override
-    public UserResponseDto updateUserTelegramChatId(
-            Long userId,
-            UpdateChatIdRequestDto requestDto
-    ) {
-        User userFromDb = findUserById(userId);
-        userFromDb.setTelegramChatId(requestDto.chatId());
-        userRepository.save(userFromDb);
-        return userMapper.toDto(userFromDb);
-    }
 
     @Transactional
     @Override
@@ -60,19 +47,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getProfileInfo(Authentication authentication) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
-        return userMapper.toDto(user);
+        return userMapper.toDto(
+                userDetailsService.getUserFromAuthentication(authentication)
+        );
     }
 
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                String.format(
-                                        ErrorMessages.getCANT_FIND_BY_ID(),
-                                        ErrorMessages.getUSER(), id
-                                )
-                        )
+                        new EntityNotFoundException("Can't find user by id " + id)
                 );
     }
 }
