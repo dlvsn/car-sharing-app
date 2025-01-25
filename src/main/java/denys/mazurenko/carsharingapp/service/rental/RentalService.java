@@ -2,18 +2,18 @@ package denys.mazurenko.carsharingapp.service.rental;
 
 import denys.mazurenko.carsharingapp.dto.rental.RentalRequestDto;
 import denys.mazurenko.carsharingapp.dto.rental.RentalResponseDto;
+import denys.mazurenko.carsharingapp.model.User;
 import java.util.List;
-import org.springframework.security.core.Authentication;
 
 public interface RentalService {
-    RentalResponseDto rentCar(Authentication authentication, RentalRequestDto requestDto);
+    RentalResponseDto rentCar(User user, RentalRequestDto requestDto);
 
     List<RentalResponseDto> findActiveOrNoActiveRentals(
-            Authentication authentication,
+            User user,
             boolean isActive
     );
 
-    RentalResponseDto findRentalById(Authentication authentication, Long rentalId);
+    RentalResponseDto findRentalById(User user, Long rentalId);
 
-    RentalResponseDto returnCar(Authentication authentication);
+    RentalResponseDto returnCar(User user);
 }

@@ -29,7 +29,20 @@ public class CarRentalServiceBot extends AbilityBot {
         super(botToken, botUsername);
         messageHandler = new MessageHandler(silent, db, securityService);
     }
+    /* Об єкт sender використовується для надсилання повідомлення через бот
+    db - це контекст бази данних телеграма, для того що б ми могли збеерігати стан користувача.
+    навіть якщо ми зупиняємо додаток і перезапускаємо стан зберігається,
+    хотів це поєднати з якоюсь noSql базою
+    але ще не розібрався з цим.
 
+    Також реалізував простеньку аутентифікацію для
+    приховування інформації про оплати/оренди від стороніх людей
+    В базі зберігається один пароль для всіх юзерів */
+
+    /* тут описані команди бота, якщо користувач вводить команду /start
+    або /manager
+    то в класі messageHandler буде викликатись метод start для /start
+    а для /manager метод manager */
     public Ability startBot() {
         return Ability
                 .builder()
@@ -40,6 +53,21 @@ public class CarRentalServiceBot extends AbilityBot {
                 .build();
     }
 
+    public Ability manager() {
+        return Ability
+                .builder()
+                .name("manager")
+                .locality(USER)
+                .privacy(PUBLIC)
+                .action(ctx -> messageHandler.manager(ctx.chatId(), ctx.update().getMessage()))
+                .build();
+    }
+    /* Тут інтерфйс визначатиме, які дії виконувати,
+    якщо бот буде отримувати текстові повідомлення від користувача.
+     Він буде викликати метод класу MessageHandler
+     replyToStart і потім виходячи з того, що буде вводити користувач
+     буде будуватись ланцюжок станів */
+
     public Reply replyToStart() {
         BiConsumer<BaseAbilityBot, Update> action = (abilityBot, upd) ->
                 messageHandler.replyToStart(upd.getMessage().getChatId(), upd.getMessage());
@@ -48,7 +76,10 @@ public class CarRentalServiceBot extends AbilityBot {
     }
 
     public void sendMessage(String message) {
-        messageHandler.getActiveChat().forEach(e -> messageHandler.sendMessage(e, message));
+        messageHandler.getActiveChat()
+                .forEach(e ->
+                        messageHandler.sendMessageToAuthorizedUsers(e, message)
+                );
     }
 
     @Override

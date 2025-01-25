@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ScheduledNotificationSender {
     private final RentalRepository rentalRepository;
     private final NotificationService notificationService;
@@ -19,12 +19,11 @@ public class ScheduledNotificationSender {
     public void sendNotificationActiveRentals() {
         List<Rental> activeRentals = rentalRepository.findAllByActualReturnDateIsNull();
         if (!activeRentals.isEmpty()) {
-            notificationService.sendMessage(TelegramBotMessages.getSTATUS_ACTIVE_HEADER());
-            activeRentals.forEach(e -> notificationService
-                    .sendNotificationActiveRentals(
-                            e, calculateMinutesRemain(e.getReturnDate())
-                    )
-            );
+            notificationService.sendMessage(
+                    MessageBuilder
+                            .TelegramBotMessageType
+                            .STATUS_ACTIVE_HEADER.getType());
+            activeRentals.forEach(notificationService::sendNotificationActiveRentals);
         }
     }
 
@@ -32,14 +31,18 @@ public class ScheduledNotificationSender {
     public void sendNotificationOverdueRentals() {
         List<Rental> activeRentals = rentalRepository.findAllByActualReturnDateIsNull();
         if (!activeRentals.isEmpty()) {
-            notificationService.sendMessage(TelegramBotMessages.getOVERDUE_HEADER());
+            notificationService.sendMessage(
+                    MessageBuilder
+                            .TelegramBotMessageType
+                            .OVERDUE_HEADER.getType());
             activeRentals
                     .stream()
                     .filter(e -> e.getReturnDate().isBefore(LocalDateTime.now()))
                     .forEach(e -> notificationService
                             .sendNotificationOverdueRentals(
                                     e, calculateMinutesRemain(e.getReturnDate())
-                            ));
+                            )
+                    );
         }
     }
 

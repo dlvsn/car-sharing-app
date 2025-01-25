@@ -3,20 +3,20 @@ package denys.mazurenko.carsharingapp.service.payment;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentRequestDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentResponseDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentStatusDto;
+import denys.mazurenko.carsharingapp.model.User;
 import java.util.List;
-import org.springframework.security.core.Authentication;
 
 public interface PaymentService {
     PaymentResponseDto createPaymentSession(
-            Authentication authentication,
+            User user,
             PaymentRequestDto paymentRequestDto
     );
 
-    PaymentResponseDto findPaymentById(Authentication authentication, Long rentalId);
+    PaymentResponseDto findPaymentById(User user, Long rentalId);
 
     PaymentStatusDto paymentSuccess(String sessionId);
 
     PaymentStatusDto paymentCancel(String sessionId);
 
-    List<PaymentResponseDto> getPaymentsHistory(Authentication authentication);
+    List<PaymentResponseDto> getPaymentsHistory(User user);
 }

@@ -19,5 +19,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     List<Rental> findByUserIdAndActualReturnDateIsNotNull(Long userId);
 
+    @EntityGraph(attributePaths = "user")
     List<Rental> findAllByActualReturnDateIsNull();
 }

@@ -9,22 +9,19 @@ import denys.mazurenko.carsharingapp.model.Role;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.user.RoleRepository;
 import denys.mazurenko.carsharingapp.repository.user.UserRepository;
-import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
-    private final CustomUserDetailsService userDetailsService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    @Transactional
     @Override
     public UserResponseDto updateRole(Long id, UpdateRolesRequestDto requestDto) {
         Set<Role> roleSet = roleRepository.findByIdIn(requestDto.rolesIds());
@@ -36,20 +33,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateProfileInfo(
-            Authentication authentication,
+            User user,
             UpdateProfileInfoRequestDto requestDto
     ) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
         userMapper.updateUserFromDto(requestDto, user);
         userRepository.save(user);
         return userMapper.toDto(user);
     }
 
     @Override
-    public UserResponseDto getProfileInfo(Authentication authentication) {
-        return userMapper.toDto(
-                userDetailsService.getUserFromAuthentication(authentication)
-        );
+    public UserResponseDto getProfileInfo(User user) {
+        return userMapper.toDto(findUserById(user.getId()));
     }
 
     private User findUserById(Long id) {

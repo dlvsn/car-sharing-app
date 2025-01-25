@@ -3,6 +3,8 @@ package denys.mazurenko.carsharingapp.contoller;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentRequestDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentResponseDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentStatusDto;
+import denys.mazurenko.carsharingapp.model.User;
+import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import denys.mazurenko.carsharingapp.service.payment.PaymentServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -26,7 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/payments")
 public class PaymentController {
+    private final CustomUserDetailsService userDetailsService;
     private final PaymentServiceImpl paymentService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Operation(summary = """
             Creates a payment object, calculates the total cost, 
@@ -40,7 +44,8 @@ public class PaymentController {
             @RequestBody
             @Valid
             PaymentRequestDto requestDto) {
-        return paymentService.createPaymentSession(authentication, requestDto);
+        User user = userDetailsService.getUserFromAuthentication(authentication);
+        return paymentService.createPaymentSession(user, requestDto);
     }
 
     @Operation(summary = """
@@ -51,7 +56,8 @@ public class PaymentController {
             Authentication authentication,
             @PathVariable
             @Positive Long id) {
-        return paymentService.findPaymentById(authentication, id);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return paymentService.findPaymentById(user, id);
     }
 
     @Operation(summary = """
@@ -75,6 +81,7 @@ public class PaymentController {
             """)
     @GetMapping
     public List<PaymentResponseDto> getAllPayments(Authentication authentication) {
-        return paymentService.getPaymentsHistory(authentication);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return paymentService.getPaymentsHistory(user);
     }
 }

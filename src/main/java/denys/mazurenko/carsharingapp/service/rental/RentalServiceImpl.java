@@ -11,37 +11,27 @@ import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.CarRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
-import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import denys.mazurenko.carsharingapp.service.notification.NotificationService;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RentalServiceImpl implements RentalService {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int IS_OUT_OF_STOCK = 0;
-    private final CustomUserDetailsService userDetailsService;
     private final NotificationService notificationService;
     private final CarRepository carRepository;
     private final RentalMapper rentalMapper;
     private final RentalRepository rentalRepository;
 
-    @Transactional
     @Override
-    public RentalResponseDto rentCar(
-            Authentication authentication,
-            RentalRequestDto rentalRequestDto
-    ) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
+    public RentalResponseDto rentCar(User user, RentalRequestDto rentalRequestDto) {
         checkActiveRental(user);
 
         Car car = findCarById(rentalRequestDto.carId());
@@ -54,17 +44,12 @@ public class RentalServiceImpl implements RentalService {
 
         carRepository.save(car);
         rentalRepository.save(rental);
-
-        notificationService.sendNotificationRentCreated(rental, user, car);
+        notificationService.sendNotificationRentalCreated(rental, user, car);
         return rentalMapper.toDto(rental);
     }
 
     @Override
-    public List<RentalResponseDto> findActiveOrNoActiveRentals(
-            Authentication authentication,
-            boolean isActive
-    ) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
+    public List<RentalResponseDto> findActiveOrNoActiveRentals(User user, boolean isActive) {
         return isActive
                 ? Stream.of(findActiveRentalByUserId(user.getId()))
                 .map(rentalMapper::toDto)
@@ -76,20 +61,13 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public RentalResponseDto findRentalById(
-            Authentication authentication,
-            Long rentalId
-    ) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
+    public RentalResponseDto findRentalById(User user, Long rentalId) {
         Rental rentalById = getRentalById(rentalId, user.getId());
         return rentalMapper.toDto(rentalById);
     }
 
-    @Transactional
     @Override
-    public RentalResponseDto returnCar(Authentication authentication) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
-
+    public RentalResponseDto returnCar(User user) {
         Rental rental = findActiveRentalByUserId(user.getId());
         rental.setActualReturnDate(LocalDateTime.now());
 
@@ -100,8 +78,7 @@ public class RentalServiceImpl implements RentalService {
 
         rentalRepository.save(rental);
         carRepository.save(car);
-        notificationService.sendNotificationRentCompleted(rental, user, car);
-
+        notificationService.sendNotificationRentalCompleted(rental, user, car);
         return rentalMapper.toDto(rental);
     }
 

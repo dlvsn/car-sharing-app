@@ -26,9 +26,28 @@ public class MessageHandler {
     public void start(Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText(TelegramBotMessages.getGREETING_MESSAGE());
+        message.setText(MessageBuilder
+                .TelegramBotMessageType
+                .START_MESSAGE.getType());
         sender.execute(message);
         chatState.put(chatId, UserState.START);
+    }
+
+    public void manager(Long chatId, Message message) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        if (message.getText().equalsIgnoreCase("/manager")) {
+            sendMessage.setText(String.format(
+                    MessageBuilder.TelegramBotMessageType.ENTER_PASSWORD.getType(),
+                    message.getFrom().getFirstName()));
+            sender.execute(sendMessage);
+            chatState.put(chatId, UserState.AWAITING_SECURE_CODE);
+        } else {
+            sendMessage.setText(String.format(
+                    MessageBuilder.TelegramBotMessageType.UNKNOWN_COMMAND.getType(),
+                    message.getText()));
+            sender.execute(sendMessage);
+        }
     }
 
     public void replyToStart(Long chatId, Message message) {
@@ -36,13 +55,13 @@ public class MessageHandler {
             stopChat(chatId);
         }
         switch (chatState.get(chatId)) {
-            case START -> replyToPassword(chatId, message);
+            case START -> manager(chatId, message);
             case AWAITING_SECURE_CODE -> verifyPassword(message, chatId);
-            default -> sendDefaultMessage(chatId);
+            default -> sendOnUnknownCommand(chatId, message);
         }
     }
 
-    public void sendMessage(Long chatId, String message) {
+    public void sendMessageToAuthorizedUsers(Long chatId, String message) {
         if (chatState.get(chatId) == UserState.AUTHORIZED) {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);
@@ -59,41 +78,42 @@ public class MessageHandler {
         return chatState.containsKey(chatId);
     }
 
-    private void sendDefaultMessage(Long chatId) {
+    private void sendOnUnknownCommand(Long chatId, Message message) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("Your chat state is " + chatState.get(chatId).name());
+        sendMessage.setText(String.format(
+                MessageBuilder.TelegramBotMessageType.UNKNOWN_COMMAND.getType(),
+                message.getText()));
         sender.execute(sendMessage);
-    }
-
-    private void replyToPassword(Long chatId, Message message) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(TelegramBotMessages.enterPassword(message.getFrom().getFirstName()));
-        sender.execute(sendMessage);
-        chatState.put(chatId, UserState.AWAITING_SECURE_CODE);
     }
 
     private void verifyPassword(Message message, Long chatId) {
         if (securityService.isPasswordMatches(message.getText())) {
-            sendMessageAfterCheckingPassword(chatId, TelegramBotMessages.getPASSWORD_CORRECT());
+            sendMessageAfterCheckingPassword(chatId, true);
             chatState.put(chatId, UserState.AUTHORIZED);
         } else {
-            sendMessageAfterCheckingPassword(chatId, TelegramBotMessages.getPASSWORD_INCORRECT());
+            sendMessageAfterCheckingPassword(chatId, false);
         }
     }
 
-    private void sendMessageAfterCheckingPassword(Long chatId, String message) {
+    private void sendMessageAfterCheckingPassword(Long chatId, boolean isPasswordValid) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(message);
+        String text = isPasswordValid
+                ? MessageBuilder.TelegramBotMessageType.PASSWORD_CORRECT.getType()
+                : MessageBuilder.TelegramBotMessageType.PASSWORD_INCORRECT.getType();
+        sendMessage.setText(text);
         sender.execute(sendMessage);
     }
 
     private void stopChat(Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(TelegramBotMessages.getGOODBYE_MESSAGE());
+        sendMessage.setText(
+                MessageBuilder
+                .TelegramBotMessageType
+                .GOODBYE_MESSAGE.getType()
+        );
         sender.execute(sendMessage);
         chatState.remove(chatId);
     }

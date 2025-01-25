@@ -11,17 +11,16 @@ import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.PaymentRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
-import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import denys.mazurenko.carsharingapp.service.notification.NotificationService;
 import denys.mazurenko.carsharingapp.service.payment.strategy.AmountCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -31,16 +30,13 @@ public class PaymentServiceImpl implements PaymentService {
     private final StripeService stripeService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
-    private final CustomUserDetailsService userDetailsService;
     private final RentalRepository rentalRepository;
 
-    @Transactional
     @Override
     public PaymentResponseDto createPaymentSession(
-            Authentication authentication,
+            User user,
             PaymentRequestDto paymentRequestDto
     ) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
         Rental rental = rentalRepository
                 .findByIdAndUserIdAndActualReturnDateIsNotNull(
                         paymentRequestDto.rentalId(),
@@ -55,13 +51,12 @@ public class PaymentServiceImpl implements PaymentService {
         Session session = stripeService
                 .createRentalPaymentSession(rental, amountCalculator.calculate(rental));
         Payment payment = paymentRepository.save(createPayment(rental, session));
-        notificationService.sendNotificationPaymentCreated(rental, user, payment);
+        notificationService.sendNotificationPaymentCreated(rental, user, rental.getCar(), payment);
         return paymentMapper.toDto(payment);
     }
 
     @Override
-    public PaymentResponseDto findPaymentById(Authentication authentication, Long rentalId) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
+    public PaymentResponseDto findPaymentById(User user, Long rentalId) {
         Payment payment = paymentRepository
                 .findByRentalIdFetchRental(rentalId, user.getId())
                 .orElseThrow(() ->
@@ -93,8 +88,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<PaymentResponseDto> getPaymentsHistory(Authentication authentication) {
-        User user = userDetailsService.getUserFromAuthentication(authentication);
+    public List<PaymentResponseDto> getPaymentsHistory(User user) {
         return paymentRepository.findByRentalUserIdFetchRental(user.getId())
                 .stream()
                 .map(paymentMapper::toDto)

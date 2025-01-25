@@ -2,6 +2,8 @@ package denys.mazurenko.carsharingapp.contoller;
 
 import denys.mazurenko.carsharingapp.dto.rental.RentalRequestDto;
 import denys.mazurenko.carsharingapp.dto.rental.RentalResponseDto;
+import denys.mazurenko.carsharingapp.model.User;
+import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import denys.mazurenko.carsharingapp.service.rental.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/rentals")
 public class RentalController {
+    private final CustomUserDetailsService customUserDetailsService;
     private final RentalService rentalService;
 
     @Operation(summary = """
@@ -40,7 +43,8 @@ public class RentalController {
             @RequestBody
             @Valid
             RentalRequestDto rentalRequestDto) {
-        return rentalService.rentCar(authentication, rentalRequestDto);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return rentalService.rentCar(user, rentalRequestDto);
     }
 
     @Operation(summary = """
@@ -48,7 +52,8 @@ public class RentalController {
             """)
     @PostMapping("/return")
     public RentalResponseDto returnCar(Authentication authentication) {
-        return rentalService.returnCar(authentication);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return rentalService.returnCar(user);
     }
 
     @Operation(summary = """
@@ -60,17 +65,19 @@ public class RentalController {
             @PathVariable
             @Positive
             Long id) {
-        return rentalService.findRentalById(authentication, id);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return rentalService.findRentalById(user, id);
     }
 
     @Operation(summary = """
-            Returns a list of rentals based on the isActive parameter. 
+            Returns a list of rentals based on the isActive parameter.
             Retrieves either active or inactive rentals for the authenticated user.
             """)
     @GetMapping
     public List<RentalResponseDto> getRentals(
             Authentication authentication,
             @RequestParam("is_active") boolean isActive) {
-        return rentalService.findActiveOrNoActiveRentals(authentication, isActive);
+        User user = customUserDetailsService.getUserFromAuthentication(authentication);
+        return rentalService.findActiveOrNoActiveRentals(user, isActive);
     }
 }

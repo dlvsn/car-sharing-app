@@ -3,6 +3,8 @@ package denys.mazurenko.carsharingapp.contoller;
 import denys.mazurenko.carsharingapp.dto.user.UpdateProfileInfoRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateRolesRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UserResponseDto;
+import denys.mazurenko.carsharingapp.model.User;
+import denys.mazurenko.carsharingapp.security.CustomUserDetailsService;
 import denys.mazurenko.carsharingapp.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private final CustomUserDetailsService userDetailsService;
     private final UserService userService;
 
     @Operation(summary = """
@@ -32,7 +35,8 @@ public class UserController {
             """)
     @GetMapping("/me")
     public UserResponseDto getProfileInfo(Authentication authentication) {
-        return userService.getProfileInfo(authentication);
+        User user = userDetailsService.getUserFromAuthentication(authentication);
+        return userService.getProfileInfo(user);
     }
 
     @Operation(summary = """
@@ -59,6 +63,7 @@ public class UserController {
                                              @RequestBody
                                              @Valid
                                              UpdateProfileInfoRequestDto requestDto) {
-        return userService.updateProfileInfo(authentication, requestDto);
+        User user = userDetailsService.getUserFromAuthentication(authentication);
+        return userService.updateProfileInfo(user, requestDto);
     }
 }
