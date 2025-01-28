@@ -6,6 +6,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      JWT_SECRET: ${{secrets.JWT_SECRET }}
+      STRIPE_API_KEY: ${{secrets.STRIPE_API_KEY}}
+      STRIPE_SUCCESS_URL: ${{secrets.STRIPE_SUCCESS_URL}}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN}}
+      TELEGRAM_BOT_NAME: ${{ secrets.TELEGRAM_BOT_NAME }}
+      JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 21
