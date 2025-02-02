@@ -1,4 +1,4 @@
-package denys.mazurenko.carsharingapp.service.notification;
+package denys.mazurenko.carsharingapp.service.notification.util;
 
 import denys.mazurenko.carsharingapp.model.Payment;
 import java.math.BigDecimal;
@@ -133,7 +133,7 @@ public class MessageBuilder {
     }
 
     @Getter
-    public enum TelegramBotMessageType {
+    public enum TelegramBotMessageTemplates {
         PASSWORD_CORRECT("""
                 ✅The password is correct.
                 📢You have been granted access to receive notifications about rentals and payments.️
@@ -148,10 +148,10 @@ public class MessageBuilder {
                         Welcome to the car rental admin service 🛠️.
                         Please enter your password to access messages."""),
         UNKNOWN_COMMAND("🤷‍♂️Unknown command [ %s ]");
-        private final String type;
+        private final String text;
 
-        TelegramBotMessageType(String type) {
-            this.type = type;
+        TelegramBotMessageTemplates(String text) {
+            this.text = text;
         }
 
     }

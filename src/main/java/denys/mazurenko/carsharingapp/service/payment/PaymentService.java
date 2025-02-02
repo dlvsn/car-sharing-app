@@ -14,9 +14,7 @@ public interface PaymentService {
 
     PaymentResponseDto findPaymentById(User user, Long rentalId);
 
-    PaymentStatusDto paymentSuccess(String sessionId);
-
-    PaymentStatusDto paymentCancel(String sessionId);
+    PaymentStatusDto getPaymentStatus(String sessionId);
 
     List<PaymentResponseDto> getPaymentsHistory(User user);
 }

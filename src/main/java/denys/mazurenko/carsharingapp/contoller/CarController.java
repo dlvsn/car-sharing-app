@@ -38,10 +38,10 @@ public class CarController {
     @PreAuthorize("hasRole('ROLE_MANAGER')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CarDto postNewCar(
+    public CarDto create(
             @RequestBody
             @Valid CarDto carDto) {
-        return carService.save(carDto);
+        return carService.create(carDto);
     }
 
     @Operation(summary = """

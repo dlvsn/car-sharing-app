@@ -1,23 +1,21 @@
-package denys.mazurenko.carsharingapp.service.notification;
+package denys.mazurenko.carsharingapp.service.notification.rental;
 
 import denys.mazurenko.carsharingapp.model.Car;
-import denys.mazurenko.carsharingapp.model.Payment;
 import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
+import denys.mazurenko.carsharingapp.service.notification.bot.RentalServiceBot;
+import denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Async
-@Service
 @RequiredArgsConstructor
-public class NotificationService {
-    private final CarRentalServiceBot carRentalServiceBot;
+@Service
+public class RentalNotificationServiceImpl implements RentalNotificationService {
+    private final RentalServiceBot bot;
 
-    public void sendMessage(String message) {
-        carRentalServiceBot.sendMessage(message);
-    }
-
+    @Override
     public void sendNotificationRentalCompleted(Rental rental, User user, Car car) {
         String message = MessageBuilder.builder()
                 .addRentalCompletedHeader()
@@ -29,9 +27,10 @@ public class NotificationService {
                 .addActualDate(rental.getActualReturnDate())
                 .addRentalStatusFooter()
                 .build();
-        carRentalServiceBot.sendMessage(message);
+        bot.sendNotification(message);
     }
 
+    @Override
     public void sendNotificationRentalCreated(Rental rental, User user, Car car) {
         String message = MessageBuilder.builder()
                 .addRentalCreatedHeader()
@@ -41,44 +40,10 @@ public class NotificationService {
                 .addRentalDate(rental.getRentalDate())
                 .addReturnDate(rental.getReturnDate())
                 .build();
-        carRentalServiceBot.sendMessage(message);
+        bot.sendNotification(message);
     }
 
-    public void sendNotificationPaymentCreated(Rental rental, User user, Car car, Payment payment) {
-        String message = MessageBuilder.builder()
-                .addPaymentSessionCreatedHeader()
-                .addId(rental.getId())
-                .addUser(user.getEmail())
-                .addCar(car.getBrand(), car.getModel())
-                .addRentalDate(rental.getRentalDate())
-                .addReturnDate(rental.getReturnDate())
-                .addActualDate(rental.getActualReturnDate())
-                .addTotalAmount(payment.getAmount())
-                .addPaymentStatus(payment.getStatus())
-                .build();
-        carRentalServiceBot.sendMessage(message);
-    }
-
-    public void sendNotificationPaymentSuccess(Payment payment) {
-        String message = MessageBuilder.builder()
-                .addPaymentCompletedHeader()
-                .addId(payment.getId())
-                .addTotalAmount(payment.getAmount())
-                .addPaymentStatus(payment.getStatus())
-                .build();
-        carRentalServiceBot.sendMessage(message);
-    }
-
-    public void sendNotificationPaymentCancel(Payment payment) {
-        String message = MessageBuilder.builder()
-                .addPaymentFailedHeader()
-                .addId(payment.getId())
-                .addTotalAmount(payment.getAmount())
-                .addPaymentStatus(payment.getStatus())
-                .build();
-        carRentalServiceBot.sendMessage(message);
-    }
-
+    @Override
     public void sendNotificationOverdueRentals(Rental rental, long minutes) {
         String message = MessageBuilder.builder()
                 .addId(rental.getId())
@@ -87,9 +52,10 @@ public class NotificationService {
                 .addReturnDate(rental.getReturnDate())
                 .addOverdueTime(minutes)
                 .build();
-        carRentalServiceBot.sendMessage(message);
+        bot.sendNotification(message);
     }
 
+    @Override
     public void sendNotificationActiveRentals(Rental rental) {
         String message = MessageBuilder.builder()
                 .addId(rental.getId())
@@ -97,6 +63,11 @@ public class NotificationService {
                 .addRentalDate(rental.getRentalDate())
                 .addReturnDate(rental.getReturnDate())
                 .build();
-        carRentalServiceBot.sendMessage(message);
+        bot.sendNotification(message);
+    }
+
+    @Override
+    public void sendNotificationHeader(MessageBuilder.TelegramBotMessageTemplates header) {
+        bot.sendNotification(header.getText());
     }
 }

@@ -64,8 +64,8 @@ public class PaymentController {
             Returns the payment status as successful based on the session ID.
             """)
     @GetMapping("/success")
-    public PaymentStatusDto successPayment(@RequestParam("session_id") String sessionId) {
-        return paymentService.paymentSuccess(sessionId);
+    public PaymentStatusDto getPaymentSuccess(@RequestParam("session_id") String sessionId) {
+        return paymentService.getPaymentStatus(sessionId);
     }
 
     @Operation(summary = """
@@ -73,7 +73,7 @@ public class PaymentController {
             """)
     @GetMapping("/cancel")
     public PaymentStatusDto cancelPayment(@RequestParam("session_id") String sessionId) {
-        return paymentService.paymentCancel(sessionId);
+        return paymentService.getPaymentStatus(sessionId);
     }
 
     @Operation(summary = """

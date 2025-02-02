@@ -5,7 +5,7 @@ import denys.mazurenko.carsharingapp.dto.car.UpdateCarRequestDto;
 import java.util.List;
 
 public interface CarService {
-    CarDto save(CarDto dto);
+    CarDto create(CarDto dto);
 
     List<CarDto> getAllCars();
 

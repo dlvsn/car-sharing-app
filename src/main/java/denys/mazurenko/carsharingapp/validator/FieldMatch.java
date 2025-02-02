@@ -1,4 +1,4 @@
-package denys.mazurenko.carsharingapp.validator.user;
+package denys.mazurenko.carsharingapp.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

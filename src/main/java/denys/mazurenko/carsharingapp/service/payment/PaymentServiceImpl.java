@@ -11,7 +11,7 @@ import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.PaymentRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
-import denys.mazurenko.carsharingapp.service.notification.NotificationService;
+import denys.mazurenko.carsharingapp.service.notification.payment.PaymentNotificationService;
 import denys.mazurenko.carsharingapp.service.payment.strategy.AmountCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,10 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class PaymentServiceImpl implements PaymentService {
-    private static final String IS_PAID = "paid";
+    private static final String PAID = "paid";
     private final AmountCalculator amountCalculator;
-    private final NotificationService notificationService;
-    private final StripeService stripeService;
+    private final PaymentNotificationService paymentNotificationService;
+    private final StripeServiceImpl stripeService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
@@ -51,7 +51,12 @@ public class PaymentServiceImpl implements PaymentService {
         Session session = stripeService
                 .createRentalPaymentSession(rental, amountCalculator.calculate(rental));
         Payment payment = paymentRepository.save(createPayment(rental, session));
-        notificationService.sendNotificationPaymentCreated(rental, user, rental.getCar(), payment);
+        paymentNotificationService.sendNotificationPaymentCreated(
+                rental,
+                user,
+                rental.getCar(),
+                payment
+        );
         return paymentMapper.toDto(payment);
     }
 
@@ -65,26 +70,22 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentStatusDto paymentSuccess(String sessionId) {
+    public PaymentStatusDto getPaymentStatus(String sessionId) {
         Payment payment = getPaymentById(sessionId);
 
         String status = stripeService.checkPaymentStatus(payment.getSessionId());
+        PaymentStatusDto paymentStatusDto = new PaymentStatusDto();
 
-        if (status.equals(IS_PAID)) {
+        if (status.equals(PAID)) {
             payment.setStatus(Payment.Status.PAID);
             paymentRepository.save(payment);
-
-            notificationService.sendNotificationPaymentSuccess(payment);
-            return new PaymentStatusDto(Payment.Status.PAID);
+            paymentStatusDto.setStatus(payment.getStatus());
+            paymentNotificationService.sendNotificationPaymentSuccess(payment);
+        } else {
+            paymentNotificationService.sendNotificationPaymentCancel(payment);
+            paymentStatusDto.setStatus(payment.getStatus());
         }
-        return new PaymentStatusDto(Payment.Status.PENDING);
-    }
-
-    @Override
-    public PaymentStatusDto paymentCancel(String sessionId) {
-        Payment payment = getPaymentById(sessionId);
-        notificationService.sendNotificationPaymentCancel(payment);
-        return new PaymentStatusDto(Payment.Status.PENDING);
+        return paymentStatusDto;
     }
 
     @Override

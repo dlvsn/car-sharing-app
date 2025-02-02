@@ -1,6 +1,6 @@
 package denys.mazurenko.carsharingapp.dto.user;
 
-import denys.mazurenko.carsharingapp.validator.user.FieldMatch;
+import denys.mazurenko.carsharingapp.validator.FieldMatch;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.Length;
                 message = "password don't match")
 })
 public class RegisterUserRequestDto {
-    @Email
+    @Email(message = "Invalid email format")
     @NotBlank(message = "Please, enter your email")
     private String email;
 
@@ -28,7 +28,7 @@ public class RegisterUserRequestDto {
 
     @NotBlank
     @Length(min = 6, max = 20,
-            message = "password must contain between 6 and 20 characters")
+            message = "Password must contain between 6 and 20 characters")
     private String password;
     private String repeatPassword;
 }

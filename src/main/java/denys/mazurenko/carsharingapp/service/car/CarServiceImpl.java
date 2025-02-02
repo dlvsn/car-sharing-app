@@ -20,7 +20,7 @@ public class CarServiceImpl implements CarService {
     private final CarMapper carMapper;
 
     @Override
-    public CarDto save(CarDto dto) {
+    public CarDto create(CarDto dto) {
         if (carRepository
                 .existsCarByBrandAndModelAndType(dto.getBrand(), dto.getModel(), dto.getType())) {
             throw new DataProcessingException(

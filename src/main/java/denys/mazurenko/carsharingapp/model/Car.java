@@ -47,6 +47,10 @@ public class Car {
         SEDAN,
         SUV,
         HATCHBACK,
-        UNIVERSAL
+        UNIVERSAL,
+        MINIVAN,
+        COUPE,
+        SPORT_CAR,
+        PICKUP_TRUCK
     }
 }

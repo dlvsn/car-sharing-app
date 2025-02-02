@@ -9,9 +9,10 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class AmountCalculator {
+public class AmountCalculator implements Calculator {
     private final CalculationProviderManager calculationProviderManager;
 
+    @Override
     public BigDecimal calculate(Rental rental) {
         BigDecimal amount = calculationProviderManager
                 .getCalculationProvider(CalculationType.ON_TIME.name()).getAmount(rental);

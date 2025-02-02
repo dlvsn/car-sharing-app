@@ -11,7 +11,7 @@ import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.CarRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
-import denys.mazurenko.carsharingapp.service.notification.NotificationService;
+import denys.mazurenko.carsharingapp.service.notification.rental.RentalNotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +20,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @Transactional
 @RequiredArgsConstructor
+@Service
 public class RentalServiceImpl implements RentalService {
-    private static final int IS_OUT_OF_STOCK = 0;
-    private final NotificationService notificationService;
+    private static final int OUT_OF_STOCK = 0;
+    private final RentalNotificationService notificationService;
     private final CarRepository carRepository;
     private final RentalMapper rentalMapper;
     private final RentalRepository rentalRepository;
@@ -98,7 +98,7 @@ public class RentalServiceImpl implements RentalService {
     }
 
     private void checkCarInventory(Car car) {
-        if (car.getInventory() == IS_OUT_OF_STOCK) {
+        if (car.getInventory() == OUT_OF_STOCK) {
             throw new CarOutOfStockException("Car with id "
                     + car.getId()
                     + " is out of stock");

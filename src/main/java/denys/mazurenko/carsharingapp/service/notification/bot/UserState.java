@@ -1,4 +1,4 @@
-package denys.mazurenko.carsharingapp.service.notification;
+package denys.mazurenko.carsharingapp.service.notification.bot;
 
 public enum UserState {
     START,
