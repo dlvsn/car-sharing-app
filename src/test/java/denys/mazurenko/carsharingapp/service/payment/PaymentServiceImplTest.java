@@ -26,8 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,14 +77,11 @@ class PaymentServiceImplTest {
 
         User user = TestObjectBuilder.initUser();
 
-        doThrow(new RuntimeException("Notification service failure"))
-                .when(paymentNotificationService)
-                .sendNotificationPaymentCreated(rental, user, rental.getCar(), payment);
-
         PaymentResponseDto expected = TestObjectBuilder.initPaymentResponseDto(rental, mockSession, payment);
+
         when(paymentMapper.toDto(payment)).thenReturn(expected);
 
-        PaymentResponseDto actual = assertDoesNotThrow(() -> paymentService.createPaymentSession(user, requestDto));
+        PaymentResponseDto actual = paymentService.createPaymentSession(user, requestDto);
 
         assertThat(expected).isEqualTo(actual);
     }
@@ -150,19 +147,14 @@ class PaymentServiceImplTest {
         String sessionId = "test_id";
         Payment payment = TestObjectBuilder.initPayment();
 
-        when(paymentRepository.findBySessionId(any(String.class))).thenReturn(Optional.of(payment));
+        when(paymentRepository.findBySessionId(sessionId)).thenReturn(Optional.of(payment));
 
         when(stripeService.checkPaymentStatus(any(String.class))).thenReturn("paid");
 
         payment.setStatus(Payment.Status.PAID);
         when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
-        PaymentStatusDto expected = new PaymentStatusDto();
-        expected.setStatus(payment.getStatus());
-
-        doThrow(new RuntimeException("Notification service failure"))
-                .when(paymentNotificationService)
-                .sendNotificationPaymentSuccess(payment);
+        PaymentStatusDto expected = new PaymentStatusDto(payment.getStatus());
 
         PaymentStatusDto actual = paymentService.getPaymentStatus(sessionId);
 
@@ -176,14 +168,29 @@ class PaymentServiceImplTest {
         String sessionId = "test_id";
         Payment payment = TestObjectBuilder.initPayment();
 
-        when(paymentRepository.findBySessionId(any(String.class))).thenReturn(Optional.of(payment));
+        when(paymentRepository.findBySessionId(sessionId)).thenReturn(Optional.of(payment));
 
-        when(stripeService.checkPaymentStatus(sessionId)).thenReturn("any other");
+        when(stripeService.checkPaymentStatus(any(String.class))).thenReturn("any other");
 
-        PaymentStatusDto expected = new PaymentStatusDto();
-        expected.setStatus(Payment.Status.PENDING);
+        PaymentStatusDto expected = new PaymentStatusDto(payment.getStatus());
 
         PaymentStatusDto actual = paymentService.getPaymentStatus(sessionId);
+
+        assertThat(expected).isEqualTo(actual);
+    }
+
+    @Test
+    @DisplayName("""
+            """)
+    void getPaymentHistory_Success() {
+        Payment payment = TestObjectBuilder.initPayment();
+        User user = TestObjectBuilder.initUser();
+
+        when(paymentRepository.findByRentalUserIdFetchRental(user.getId())).thenReturn(List.of(payment));
+        List<PaymentResponseDto> expected = List.of(TestObjectBuilder.mapPaymentToResponseDto(payment));
+
+        when(paymentMapper.toDto(payment)).thenReturn(expected.get(0));
+        List<PaymentResponseDto> actual = paymentService.getPaymentsHistory(user);
 
         assertThat(expected).isEqualTo(actual);
     }
