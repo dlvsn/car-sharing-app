@@ -1,0 +1,1 @@
+delete from payments where rental_id = 1;

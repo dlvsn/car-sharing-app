@@ -16,6 +16,8 @@ import denys.mazurenko.carsharingapp.service.payment.strategy.AmountCalculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+
+import denys.mazurenko.carsharingapp.service.payment.strategy.Calculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentServiceImpl implements PaymentService {
     private static final String PAID = "paid";
-    private final AmountCalculator amountCalculator;
+    private final Calculator amountCalculator;
     private final PaymentNotificationService paymentNotificationService;
-    private final StripeServiceImpl stripeService;
+    private final StripeService stripeService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
@@ -74,18 +76,16 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getPaymentById(sessionId);
 
         String status = stripeService.checkPaymentStatus(payment.getSessionId());
-        PaymentStatusDto paymentStatusDto = new PaymentStatusDto();
 
         if (status.equals(PAID)) {
             payment.setStatus(Payment.Status.PAID);
             paymentRepository.save(payment);
-            paymentStatusDto.setStatus(payment.getStatus());
             paymentNotificationService.sendNotificationPaymentSuccess(payment);
+            return new PaymentStatusDto(Payment.Status.PAID);
         } else {
             paymentNotificationService.sendNotificationPaymentCancel(payment);
-            paymentStatusDto.setStatus(payment.getStatus());
         }
-        return paymentStatusDto;
+        return new PaymentStatusDto(Payment.Status.PENDING);
     }
 
     @Override
