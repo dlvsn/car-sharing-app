@@ -1,1 +1,59 @@
-# car-sharing-app
+# Car Sharing App
+# Project Description
+**This project is a car-sharing service** built using **Java 17 and Spring Boot.** It allows users to rent vehicles, view available cars, and pay online via Stripe.
+## Problem and Solution
+The app addresses the growing demand for flexible, on-demand vehicle rental options. It helps users rent cars in an easy and efficient way, without the need for a long-term commitment. The system supports online payment, car management for administrators, and notifications about car rentals.
+### Key Features for Users:
+- **Browse all available cars:** Users can view a list of all available cars in real time. 
+- **Rent a car:** Users can select a car and complete the rental process.
+- **Online Payment:** Payments for rentals are securely processed via Stripe.
+### Key Features for Administrators:
+- **Car Management:** Admins can add and edit car details as needed.
+- **Telegram Bot Notifications:** A Telegram bot is integrated for notifications regarding rentals and payments. The bot has simple commands like:
+  - **/start** - to initiate the bot.
+  - **/stop** - to stop the bot
+  - **/manager** - to enter the admin section with a password for privileged access.
+- **Admin Authentication:** Only authorized administrators can receive notifications about rental actions and payments.
+- **Real-time Notifications:** Admins are notified immediately when a user rents a car or makes a payment, as well as when there are active or overdue rentals.
+### Rental Calculation:
+Rentals are charged per minute, and users are only billed for the actual time the car is rented, even if returned earlier than planned.
+## Technologies Used
+- **Java 17**
+- **Spring Boot:** Used for building the backend of the application.
+- **Spring Security:** Implements authentication and authorization using JWT (JSON Web Tokens) for secure user login and session management.
+- **Spring Data JPA:** Provides easy integration with MySQL through JPA, simplifying database operations and reducing boilerplate code.
+- **Stripe API:** Integrated for secure and efficient online payments. Stripe handles the payment processing for car rentals, providing a seamless experience for users.
+- **Telegram Bot:** A custom Telegram bot for real-time notifications. The bot is used to send alerts to administrators about new rentals, payments, and overdue rentals, ensuring quick and efficient communication.
+- **MapStruct:** Used for object mapping, simplifying the transformation of data between entities and DTOs.
+- **MySQL:** Database.
+- **Liquibase:** Used for database version control.
+- **Docker:** Containerization for application deployment.
+- **Swagger:** Used for API documentation and testing, providing an interactive interface to explore and test the RESTful endpoints.
+- **Junit**, **Mockito**, **Testcontainers:** Testing frameworks used for unit testing, mocking dependencies, and testing database interactions in a containerized environment.
+
+## Design Patterns
+- **Builder Pattern:** Used for dynamic message creation.
+- **Strategy Pattern:** Employed to calculate rental prices. This is a scalable choice, allowing for future enhancements like promotions and discount logic.
+
+# How to run the project
+### Prerequisites:
+- **Java 17 must be installed on your system.**
+- **MySQL should be installed and running. Ensure you have the credentials (username and password) to access your MySQL database.**
+### Clone the Repository:
+git clone https://github.com/dlvsn/car-sharing-app 
+cd <project_directory>
+### Set Up the Database:
+- **Create a MySQL database.**
+- **Update the application.properties or application.yml file in the src/main/resources directory with your database credentials and other configurations. Example:**  
+  spring.datasource.url=jdbc:mysql://localhost:3306/<your_database_name>  
+  spring.datasource.username=<your_username>  
+  spring.datasource.password=<your_password>
+### Run the Application:
+- **Open a terminal in the project directory and execute:**  
+  ./mvnw spring-boot:run
+- **Alternatively, if you are using an IDE like IntelliJ IDEA, open the project, locate the Application class (usually in the src/main/java directory), and run it.**
+
+### Access the API Documentation:
+- **The project includes Swagger for API documentation. Once the application is running, open your browser and navigate to:**
+  http://localhost:8080/swagger-ui/index.html
+# Now you can explore and test the available endpoints!
