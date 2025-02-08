@@ -17,6 +17,7 @@ import denys.mazurenko.carsharingapp.dto.user.UpdateProfileInfoRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UpdateRolesRequestDto;
 import denys.mazurenko.carsharingapp.dto.user.UserResponseDto;
 import denys.mazurenko.carsharingapp.util.TestObjectBuilder;
+import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,6 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
         DELETE_USERS_SQL
 }, executionPhase = AFTER_TEST_METHOD)
 public class UserControllerTest {
+    private static final String MAP_DB_FILE = "MazurenkoCarRentalService_bot";
     private static final Long TEST_USER_ID = 2L;
     private static final String USERS_ID_ENDPOINT = "/users/{id}/role";
     private static final String USERS_ME_ENDPOINT = "/users/me";
@@ -54,6 +56,10 @@ public class UserControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext)
                 .apply(springSecurity())
                 .build();
+        File dbFile = new File(MAP_DB_FILE);
+        if (dbFile.exists()) {
+            dbFile.delete();
+        }
     }
 
     @Test
