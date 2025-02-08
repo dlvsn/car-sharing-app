@@ -2,7 +2,7 @@ package denys.mazurenko.carsharingapp.service.car;
 
 import denys.mazurenko.carsharingapp.dto.car.CarDto;
 import denys.mazurenko.carsharingapp.dto.car.UpdateCarRequestDto;
-import denys.mazurenko.carsharingapp.exception.DataProcessingException;
+import denys.mazurenko.carsharingapp.exception.CarDuplicationException;
 import denys.mazurenko.carsharingapp.exception.EntityNotFoundException;
 import denys.mazurenko.carsharingapp.mapper.CarMapper;
 import denys.mazurenko.carsharingapp.model.Car;
@@ -23,7 +23,7 @@ public class CarServiceImpl implements CarService {
     public CarDto create(CarDto dto) {
         if (carRepository
                 .existsCarByBrandAndModelAndType(dto.getBrand(), dto.getModel(), dto.getType())) {
-            throw new DataProcessingException(
+            throw new CarDuplicationException(
                     String.format(
                             "Car %s %s %s already exists in DB",
                             dto.getBrand(),

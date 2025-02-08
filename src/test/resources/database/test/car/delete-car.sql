@@ -1,1 +1,1 @@
-delete from cars where id = 1;
+delete from cars;

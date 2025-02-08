@@ -1,1 +1,1 @@
-delete from rentals where id = 1;
+delete from rentals;

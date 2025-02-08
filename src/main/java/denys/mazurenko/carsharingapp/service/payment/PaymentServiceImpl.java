@@ -12,12 +12,10 @@ import denys.mazurenko.carsharingapp.model.User;
 import denys.mazurenko.carsharingapp.repository.PaymentRepository;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
 import denys.mazurenko.carsharingapp.service.notification.payment.PaymentNotificationService;
-import denys.mazurenko.carsharingapp.service.payment.strategy.AmountCalculator;
+import denys.mazurenko.carsharingapp.service.payment.strategy.Calculator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-
-import denys.mazurenko.carsharingapp.service.payment.strategy.Calculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

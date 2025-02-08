@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperConfig.class)
 public interface PaymentMapper {
     @Mapping(target = "rentalId", source = "rental.id")
+    @Mapping(target = "paymentType", source = "payment.type")
     PaymentResponseDto toDto(Payment payment);
 }

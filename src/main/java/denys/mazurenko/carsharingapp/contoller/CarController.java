@@ -66,6 +66,7 @@ public class CarController {
     @Operation(summary = """
             Updates the details of a car identified by its ID.
             """)
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     @PutMapping("/{id}")
     public CarDto updateCarById(
             @PathVariable

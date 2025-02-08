@@ -71,6 +71,13 @@ public class CustomGlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(CarDuplicationException.class)
+    public ResponseEntity<ErrorResponseDto> handleCarDuplicationException(
+            CarDuplicationException exception) {
+        return new ResponseEntity<>(initErrorDto(exception, HttpStatus.CONFLICT),
+                HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(StripeSessionFailureException.class)
     public ResponseEntity<ErrorResponseDto> handleStripeSessionFailureException(
             StripeSessionFailureException exception) {

@@ -25,6 +25,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto updateRole(Long id, UpdateRolesRequestDto requestDto) {
         Set<Role> roleSet = roleRepository.findByIdIn(requestDto.rolesIds());
+        if (roleSet.isEmpty()) {
+            throw new EntityNotFoundException("Roles by ids "
+                    + roleSet
+                    + "not found");
+        }
         User userFromDb = findUserById(id);
         userFromDb.setRoles(roleSet);
         userRepository.save(userFromDb);
