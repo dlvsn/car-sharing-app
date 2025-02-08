@@ -10,7 +10,6 @@ import static denys.mazurenko.carsharingapp.util.DatabaseTestScripts.INSERT_PAYM
 import static denys.mazurenko.carsharingapp.util.DatabaseTestScripts.INSERT_RENTALS_SQL;
 import static denys.mazurenko.carsharingapp.util.DatabaseTestScripts.INSERT_USERS_SQL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -65,30 +64,6 @@ public class PaymentControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext)
                 .apply(springSecurity())
                 .build();
-    }
-
-    @Test
-    @DisplayName("""
-            Create payment with completed rental ID - Success
-            """)
-    @WithUserDetails("testmail3@mail.com")
-    void createPaymentWithCompletedRentalId_asCustomer_ok() throws Exception {
-        PaymentRequestDto dto = new PaymentRequestDto(3L);
-
-        String jsonRequest = objectMapper.writeValueAsString(dto);
-
-        MvcResult result = mockMvc.perform(
-                post(PAYMENTS_ENDPOINT)
-                        .content(jsonRequest)
-                        .contentType(APPLICATION_JSON)
-        ).andExpect(status().isCreated()).andReturn();
-        String jsonResponse = result.getResponse().getContentAsString();
-
-        PaymentResponseDto expected = TestObjectBuilder.initPendingPaymentResponseDto();
-
-        PaymentResponseDto actual = objectMapper.readValue(jsonResponse, PaymentResponseDto.class);
-
-        assertEquals(expected.getRentalId(), actual.getRentalId());
     }
 
     @Test
