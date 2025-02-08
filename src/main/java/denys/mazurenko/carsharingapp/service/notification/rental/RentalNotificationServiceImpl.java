@@ -67,7 +67,7 @@ public class RentalNotificationServiceImpl implements RentalNotificationService 
     }
 
     @Override
-    public void sendNotificationHeader(MessageBuilder.TelegramBotMessageTemplates header) {
-        bot.sendNotification(header.getText());
+    public void sendNotificationHeader(String header) {
+        bot.sendNotification(header);
     }
 }

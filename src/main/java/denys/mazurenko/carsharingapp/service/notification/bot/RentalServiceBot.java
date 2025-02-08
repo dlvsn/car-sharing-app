@@ -1,10 +1,15 @@
 package denys.mazurenko.carsharingapp.service.notification.bot;
 
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.ENTER_PASSWORD;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.GOODBYE_MESSAGE;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.PASSWORD_CORRECT;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.PASSWORD_INCORRECT;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.START_MESSAGE;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.UNKNOWN_COMMAND;
 import static org.telegram.abilitybots.api.objects.Locality.USER;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 import denys.mazurenko.carsharingapp.security.telegram.TelegramSecurityService;
-import denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder;
 import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
@@ -94,27 +99,25 @@ public class RentalServiceBot extends AbilityBot {
     }
 
     private void startMessage(Long chatId) {
-        sendMessage(chatId, MessageBuilder.TelegramBotMessageTemplates
-                .START_MESSAGE.getText());
+        sendMessage(chatId, START_MESSAGE);
         chatState.put(chatId, UserState.START);
     }
 
     private void handleManager(Long chatId, Message message) {
         if (message.getText().equalsIgnoreCase("/manager")) {
-            sendMessage(chatId, String.format(
-                    MessageBuilder.TelegramBotMessageTemplates.ENTER_PASSWORD.getText(),
+            sendMessage(chatId, String.format(ENTER_PASSWORD,
                     message.getFrom().getFirstName()));
             chatState.put(chatId, UserState.AWAITING_SECURE_CODE);
         } else {
             sendMessage(chatId, String.format(
-                    MessageBuilder.TelegramBotMessageTemplates.UNKNOWN_COMMAND.getText(),
+                    UNKNOWN_COMMAND,
                     message.getText()));
         }
     }
 
     private void sendOnUnknownCommand(Long chatId, Message message) {
         sendMessage(chatId, String.format(
-                MessageBuilder.TelegramBotMessageTemplates.UNKNOWN_COMMAND.getText(),
+                UNKNOWN_COMMAND,
                 message.getText()));
     }
 
@@ -143,15 +146,13 @@ public class RentalServiceBot extends AbilityBot {
 
     private void sendMessageAfterCheckingPassword(Long chatId, boolean isPasswordValid) {
         String text = isPasswordValid
-                ? MessageBuilder.TelegramBotMessageTemplates.PASSWORD_CORRECT.getText()
-                : MessageBuilder.TelegramBotMessageTemplates.PASSWORD_INCORRECT.getText();
+                ? PASSWORD_CORRECT
+                : PASSWORD_INCORRECT;
         sendMessage(chatId, text);
     }
 
     private void stopChat(Long chatId) {
-        sendMessage(chatId, MessageBuilder.TelegramBotMessageTemplates
-                .GOODBYE_MESSAGE.getText()
-        );
+        sendMessage(chatId, GOODBYE_MESSAGE);
         chatState.remove(chatId);
     }
 

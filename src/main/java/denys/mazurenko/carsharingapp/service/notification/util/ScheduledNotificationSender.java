@@ -1,5 +1,8 @@
 package denys.mazurenko.carsharingapp.service.notification.util;
 
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.OVERDUE_HEADER;
+import static denys.mazurenko.carsharingapp.service.notification.util.MessageBuilder.START_MESSAGE;
+
 import denys.mazurenko.carsharingapp.model.Rental;
 import denys.mazurenko.carsharingapp.repository.RentalRepository;
 import denys.mazurenko.carsharingapp.service.notification.rental.RentalNotificationService;
@@ -22,7 +25,7 @@ public class ScheduledNotificationSender {
         if (!activeRentals.isEmpty()) {
             notificationService
                     .sendNotificationHeader(
-                            MessageBuilder.TelegramBotMessageTemplates.STATUS_ACTIVE_HEADER);
+                            START_MESSAGE);
             activeRentals.forEach(notificationService::sendNotificationActiveRentals);
         }
     }
@@ -32,7 +35,7 @@ public class ScheduledNotificationSender {
         List<Rental> activeRentals = rentalRepository.findAllByActualReturnDateIsNull();
         if (!activeRentals.isEmpty()) {
             notificationService.sendNotificationHeader(
-                            MessageBuilder.TelegramBotMessageTemplates.OVERDUE_HEADER);
+                            OVERDUE_HEADER);
             activeRentals
                     .stream()
                     .filter(e -> e.getReturnDate().isBefore(LocalDateTime.now()))

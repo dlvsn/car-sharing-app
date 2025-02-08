@@ -4,9 +4,23 @@ import denys.mazurenko.carsharingapp.model.Payment;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import lombok.Getter;
 
 public class MessageBuilder {
+    public static final String PASSWORD_CORRECT = """
+                ✅The password is correct.
+                📢You have been granted access to receive notifications about rentals and payments.️
+                """;
+    public static final String START_MESSAGE = "👨‍💻To proceed to the admin panel, enter /manager";
+    public static final String GOODBYE_MESSAGE =
+            "👋Goodbye ! To start receiving messages again, enter /start";
+    public static final String PASSWORD_INCORRECT = "❌Incorrect password. Try again.";
+    public static final String OVERDUE_HEADER = "⏰Rental status: Overdue";
+    public static final String STATUS_ACTIVE_HEADER = "✅ Rental status: Active";
+    public static final String ENTER_PASSWORD = """ 
+                        👋Hello, %s
+                        Welcome to the car rental admin service 🛠️.
+                        Please enter your password to access messages.""";
+    public static final String UNKNOWN_COMMAND = "🤷‍♂️Unknown command [ %s ]";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
             .ofPattern("yyyy-MM-dd HH:mm:ss");
     private final String rentalCreatedHeader = "🏁️ Car Rental was created successfully!";
@@ -130,29 +144,5 @@ public class MessageBuilder {
         public String build() {
             return message.toString();
         }
-    }
-
-    @Getter
-    public enum TelegramBotMessageTemplates {
-        PASSWORD_CORRECT("""
-                ✅The password is correct.
-                📢You have been granted access to receive notifications about rentals and payments.️
-                """),
-        START_MESSAGE("👨‍💻To proceed to the admin panel, enter /manager"),
-        GOODBYE_MESSAGE("👋Goodbye ! To start receiving messages again, enter /start"),
-        PASSWORD_INCORRECT("❌Incorrect password. Try again."),
-        OVERDUE_HEADER("⏰Rental status: Overdue"),
-        STATUS_ACTIVE_HEADER("✅ Rental status: Active"),
-        ENTER_PASSWORD(""" 
-                        👋Hello, %s
-                        Welcome to the car rental admin service 🛠️.
-                        Please enter your password to access messages."""),
-        UNKNOWN_COMMAND("🤷‍♂️Unknown command [ %s ]");
-        private final String text;
-
-        TelegramBotMessageTemplates(String text) {
-            this.text = text;
-        }
-
     }
 }
