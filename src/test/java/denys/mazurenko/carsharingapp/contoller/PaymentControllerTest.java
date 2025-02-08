@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentRequestDto;
 import denys.mazurenko.carsharingapp.dto.payment.PaymentResponseDto;
 import denys.mazurenko.carsharingapp.util.TestObjectBuilder;
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -54,7 +53,6 @@ import org.springframework.web.context.WebApplicationContext;
         DELETE_CARS_SQL
 }, executionPhase = AFTER_TEST_METHOD)
 public class PaymentControllerTest {
-    private static final String MAP_DB_FILE = "MazurenkoCarRentalService_bot";
     private static final String PAYMENTS_ENDPOINT = "/payments";
     private static final String PAYMENTS_ID_ENDPOINT = "/payments/{id}";
     private static MockMvc mockMvc;
@@ -67,10 +65,6 @@ public class PaymentControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext)
                 .apply(springSecurity())
                 .build();
-        File dbFile = new File(MAP_DB_FILE);
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
     }
 
     @Test

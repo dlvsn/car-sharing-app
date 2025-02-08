@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import denys.mazurenko.carsharingapp.dto.rental.RentalRequestDto;
 import denys.mazurenko.carsharingapp.dto.rental.RentalResponseDto;
 import denys.mazurenko.carsharingapp.util.TestObjectBuilder;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +49,6 @@ import org.springframework.web.context.WebApplicationContext;
         DELETE_USERS_SQL
 }, executionPhase = AFTER_TEST_METHOD)
 public class RentalControllerTest {
-    private static final String MAP_DB_FILE = "MazurenkoCarRentalService_bot";
     private static final String RENTALS_ENDPOINT = "/rentals";
     private static final String RENTALS_RETURN_ENDPOINT = "/rentals/return";
     private static final String RENTALS_ID_ENDPOINT = "/rentals/{id}";
@@ -64,10 +62,6 @@ public class RentalControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext)
                 .apply(springSecurity())
                 .build();
-        File dbFile = new File(MAP_DB_FILE);
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
     }
 
     @Test
