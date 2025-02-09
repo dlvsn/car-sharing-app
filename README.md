@@ -40,20 +40,46 @@ Rentals are charged per minute, and users are only billed for the actual time th
 - **Java 17 must be installed on your system.**
 - **MySQL should be installed and running. Ensure you have the credentials (username and password) to access your MySQL database.**
 ### Clone the Repository:
-git clone https://github.com/dlvsn/car-sharing-app 
+```
+git clone https://github.com/dlvsn/car-sharing-app
 cd <project_directory>
+```
 ### Set Up the Database:
 - **Create a MySQL database.**
-- **Update the application.properties or application.yml file in the src/main/resources directory with your database credentials and other configurations. Example:**  
-  spring.datasource.url=jdbc:mysql://localhost:3306/<your_database_name>  
-  spring.datasource.username=<your_username>  
-  spring.datasource.password=<your_password>
+- **Create your own .env file and fill in the required data.**
+   ```
+   TELEGRAM_BOT_USERNAME=<your_telegram_bot_username>
+   TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+   
+   JWT_SECRET=<your_jwt_secret>
+   
+   STRIPE_SECRET_KEY=<your_stripe_secret_key>
+   
+   MYSQLDB_DATABASE=<your_database_name>
+   MYSQLDB_USER=<your_username>
+   MYSQLDB_PASSWORD=<your_password>
+   MYSQLDB_ROOT_PASSWORD=<your_root_password>
+   
+   SPRING_DATASOURCE_PORT=<your_spring_datasource_port>
+   MYSQLDB_LOCAL_PORT=<your_local_port>
+   MYSQLDB_DOCKER_PORT=<your_docker_port>
+   SPRING_LOCAL_PORT=<your_spring_local_port>
+   SPRING_DOCKER_PORT=<your_spring_docker_port>
+   ```
 ### Run the Application:
-- **Open a terminal in the project directory and execute:**  
+- **Open a terminal in the project directory and execute:**
+  ``` 
   ./mvnw spring-boot:run
+  ```
 - **Alternatively, if you are using an IDE like IntelliJ IDEA, open the project, locate the Application class (usually in the src/main/java directory), and run it.**
+- **Run with Docker. You can also run the project using Docker by executing the following command:**
+  ```
+  docker-compose up --build
+  ```
 
 ### Access the API Documentation:
 - **The project includes Swagger for API documentation. Once the application is running, open your browser and navigate to:**
   http://localhost:8080/swagger-ui/index.html
+- **If you are running the project in Docker, the Swagger documentation may be available on a different port. Check your container settings.**
+
 # Now you can explore and test the available endpoints!
