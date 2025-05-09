@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-telegram-secure-code-table
+      author: Denys Mazurenko
+      changes:
+        - createTable:
+            tableName: telegram_secure_passwords
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
