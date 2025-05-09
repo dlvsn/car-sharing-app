@@ -30,10 +30,13 @@ Rentals are charged per minute, and users are only billed for the actual time th
 - **Docker:** Containerization for application deployment.
 - **Swagger:** Used for API documentation and testing, providing an interactive interface to explore and test the RESTful endpoints.
 - **Junit**, **Mockito**, **Testcontainers:** Testing frameworks used for unit testing, mocking dependencies, and testing database interactions in a containerized environment.
-
+## Technologies version
+- **Java 17, Spring Boot(v.3.4.1), Stripe API(v.22.13.0), Telegram API(v.6.7.0), MapStruct(v.1.5.5), JWT(v.0.11.5), MYSQL(v.8.4.2), TestContainers(v.1.19.0)**
 ## Design Patterns
 - **Builder Pattern:** Used for dynamic message creation.
 - **Strategy Pattern:** Employed to calculate rental prices. This is a scalable choice, allowing for future enhancements like promotions and discount logic.
+- ## Database structure
+![image](https://github.com/user-attachments/assets/6c3eadb9-f7a9-40d5-ac8b-e3e595977ae6)
 
 # How to run the project
 ### Prerequisites:
