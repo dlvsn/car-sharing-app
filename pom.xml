@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>denys.mazurenko</groupId>
-    <artifactId>car-sharing-app</artifactId>
+    <artifactId>easy-drive</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>car-sharing-app</name>
+    <name>easy-drive</name>
     <description>car-sharing-app</description>
     <url/>
     <licenses>

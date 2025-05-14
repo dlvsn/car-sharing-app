@@ -1,4 +1,4 @@
-# Car Sharing App
+# Easy Drive
 # Project Description
 **This project is a car-sharing service** built using **Java 17 and Spring Boot.** It allows users to rent vehicles, view available cars, and pay online via Stripe.
 ## Problem and Solution
